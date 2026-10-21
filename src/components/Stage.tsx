@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { Play } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import type { Scenario } from "@/engine/types";
 import { useScenario } from "@/engine/useScenario";
@@ -17,28 +17,34 @@ import Controls from "./Controls";
 import SettingsModal from "./SettingsModal";
 import { phoneSize, phoneVariables } from "@/lib/tokens";
 import { presets } from "@/lib/scenarios";
-import ScenarioPanel from "./ScenarioPanel";
+import ScenarioPicker from "./ScenarioPicker";
+import ScenarioEditor from "./ScenarioEditor";
+import { useScenarioLibrary } from "@/lib/useScenarioLibrary";
+import ZoomControl from "./ZoomControl";
 export default function Stage() {
   const [scenario, setScenario] = useState<Scenario>(presets[0].scenario);
   const [revision, setRevision] = useState(0);
   const [muted, setMuted] = useState(false);
-  const [scale, setScale] = useState(0.72);
+  const [fitScale, setFitScale] = useState(0.72);
+  const [zoom, setZoom] = useState(100);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keyboardLayout, setKeyboardLayout] = useState<"qwerty" | "azerty">(
     "qwerty",
   );
   const [meta, setMeta] = useState(scenario.meta);
   const stageRef = useRef<HTMLElement>(null);
+  const phoneViewportRef = useRef<HTMLDivElement>(null);
+  const scale = fitScale * zoom / 100;
   const player = useScenario(scenario, muted);
   useEffect(() => {
     const resize = () =>
-      setScale(
+      setFitScale(
         Math.max(
           0.2,
           Math.min(
             1,
-            (window.innerHeight - 210) / phoneSize.height,
-            ((stageRef.current?.clientWidth ?? window.innerWidth) - 40) /
+            (window.innerHeight - 260) / phoneSize.height,
+            ((phoneViewportRef.current?.clientWidth ?? window.innerWidth) - 20) /
               phoneSize.width,
           ),
         ),
@@ -63,7 +69,10 @@ export default function Stage() {
     setRevision((value) => value + 1);
     if (autoplay) play();
   }
-  const finished = player.started && player.elapsed >= player.duration;
+  const library = useScenarioLibrary(applyScenario);
+  const progress = player.duration > 0
+    ? Math.min(100, Math.max(0, player.elapsed / player.duration * 100))
+    : 0;
   return (
     <main className="studio">
       <header className="studio-header">
@@ -71,104 +80,95 @@ export default function Stage() {
           iMessage<span>studio</span>
           <i>by code-ste</i>
         </Link>
-        <div className="studio-header-actions">
-          <button
-            type="button"
-            className="settings-button rounded-xl"
-            aria-label="Ouvrir les paramètres"
-            aria-haspopup="dialog"
-            aria-expanded={settingsOpen}
-            aria-controls={settingsOpen ? "app-settings" : undefined}
-            onClick={() => setSettingsOpen(true)}
-          >
-            <Settings size={19} strokeWidth={1.7} />
-          </button>
-        </div>
       </header>
-      <div className="studio-workspace">
-        <ScenarioPanel onApply={applyScenario} />
+      <div className="mx-auto flex w-full max-w-[1000px] flex-1 px-6 sm:px-20">
         <section
           ref={stageRef}
           className="stage"
           aria-label="Simulateur iMessage"
         >
-          <div
-            className="phone-space"
-            style={{
-              ...phoneVariables,
-              width: phoneSize.width * scale,
-              height: phoneSize.height * scale,
-            }}
-          >
-            <div
-              className="phone-scale"
-              style={{ transform: `scale(${scale})` }}
-            >
-              <IPhoneFrame>
-                <StatusBar status={meta.statusBar} />
-                <ConversationHeader name={meta.contact.name} />
-                <MessageList key={revision} player={player} />
-                <InputBar
-                  draft={player.draft}
-                  keyboardVisible={player.started}
-                  playing={player.playing}
-                />
-                <AnimatePresence>
-                  {player.started && (
-                    <Keyboard
-                      key="keyboard"
-                      keyPress={player.keyPress}
-                      elapsed={player.elapsed}
-                      playing={player.playing}
+          <div className="phone-preview">
+            <div className="phone-viewport" ref={phoneViewportRef}>
+              <div
+                className="phone-space"
+                style={{
+                  ...phoneVariables,
+                  width: phoneSize.width * scale,
+                  height: phoneSize.height * scale,
+                }}
+              >
+                <div
+                  className="phone-scale"
+                  style={{ transform: `scale(${scale})` }}
+                >
+                  <IPhoneFrame>
+                    <StatusBar status={meta.statusBar} />
+                    <ConversationHeader name={meta.contact.name} onBack={player.reset} />
+                    <MessageList key={revision} player={player} />
+                    <InputBar
                       draft={player.draft}
-                      speed={player.speed}
-                      layout={keyboardLayout}
+                      keyboardVisible={player.started}
+                      playing={player.playing}
                     />
-                  )}
-                </AnimatePresence>
-                <HomeIndicator keyboardVisible={player.started} />
-                {!player.started && (
-                  <div className="start-overlay">
-                    <div className="start-card">
-                      <div className="start-symbol">•••</div>
-                      <h1>
-                        Une conversation.
-                        <br />
-                        Un petit film.
-                      </h1>
-                      <p>
-                        Les mots, les silences, les réactions.
-                        <br />
-                        Lancez le scénario pour les voir vivre.
-                      </p>
-                      <button onClick={play}>▶ Toucher pour démarrer</button>
-                      <span>
-                        {meta.contact.name} ·{" "}
-                        {
-                          scenario.events.filter((e) => e.type === "message")
-                            .length
-                        }{" "}
-                        messages
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </IPhoneFrame>
+                    <AnimatePresence>
+                      {player.started && (
+                        <Keyboard
+                          key="keyboard"
+                          keyPress={player.keyPress}
+                          elapsed={player.elapsed}
+                          playing={player.playing}
+                          draft={player.draft}
+                          speed={player.speed}
+                          layout={keyboardLayout}
+                        />
+                      )}
+                    </AnimatePresence>
+                    <HomeIndicator keyboardVisible={player.started} />
+                    {!player.started && (
+                      <div className="absolute inset-x-0 top-[calc(64px+var(--conversation-header-height))] bottom-20 z-[3] flex flex-col bg-white px-6 pt-4 pb-5">
+                        <div className="shrink-0 text-center">
+                          <span className="text-[9px] tracking-[1.6px] text-[#a19aa9]">À VOUS DE JOUER</span>
+                          <h1 className="mt-3 text-[26px] leading-[1.15] font-semibold tracking-[-1px] text-[#25252b]">
+                            Chaque message
+                            <br />
+                            raconte une histoire.
+                          </h1>
+                          <p className="mt-2 text-[12px] leading-[18px] text-[#96969e]">Choisissez un point de départ.</p>
+                        </div>
+                        <ScenarioPicker library={library} scenario={scenario} />
+                        <div className="mt-4 shrink-0 text-center">
+                          <button type="button" onClick={play} className="flex w-full items-center justify-center gap-2 rounded-full border-0 bg-[#0a84ff] px-5 py-4 text-[14px] font-medium text-white">
+                            <Play size={16} fill="currentColor" aria-hidden="true" /> Appuyer pour démarrer
+                          </button>
+                          <span className="mt-3 block text-[11px] text-[#a4a4ac]">
+                            {meta.contact.name} ·{" "}
+                            {
+                              scenario.events.filter((e) => e.type === "message")
+                                .length
+                            }{" "}
+                            messages
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </IPhoneFrame>
+                </div>
+              </div>
             </div>
           </div>
           <div className="player-panel">
-            <div className="scenario-caption">
-              <span>
-                <i className={player.playing ? "live" : ""} />
-                {player.playing
-                  ? "En lecture"
-                  : finished
-                    ? "Terminé"
-                    : player.started
-                      ? "En pause"
-                      : "Prêt à jouer"}
-              </span>
-              <span>{scenario.meta.title}</span>
+            <div
+              className="mx-1.5 mb-3 h-0.5 overflow-hidden rounded-full bg-[#d9d6de]"
+              role="progressbar"
+              aria-label="Progression du scénario"
+              aria-valuenow={Math.round(progress)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="h-full bg-[#8f8a9c]"
+                style={{ width: `${progress}%` }}
+              />
             </div>
             <Controls
               player={player}
@@ -176,25 +176,10 @@ export default function Stage() {
               muted={muted}
               onMute={() => setMuted(!muted)}
             />
-            <div
-              className="progress"
-              role="progressbar"
-              aria-label="Progression du scénario"
-              aria-valuenow={Math.round(
-                (player.elapsed / player.duration) * 100,
-              )}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div
-                style={{
-                  width: `${(player.elapsed / player.duration) * 100}%`,
-                }}
-              />
-            </div>
           </div>
         </section>
       </div>
+      <ZoomControl value={zoom} onChange={setZoom} settingsOpen={settingsOpen} onOpenSettings={() => setSettingsOpen(true)} />
       <footer className="studio-footer">
         <span>Fait pour raconter, message après message.</span>
         <span>iPhone 17 · Vue de face</span>
@@ -215,6 +200,7 @@ export default function Stage() {
             onMetaChange={setMeta}
             keyboardLayout={keyboardLayout}
             onKeyboardLayoutChange={setKeyboardLayout}
+            scenarioEditor={<ScenarioEditor library={library} onPreview={() => setSettingsOpen(false)} />}
           />
         )}
       </AnimatePresence>

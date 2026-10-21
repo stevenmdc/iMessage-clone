@@ -1,13 +1,13 @@
 import type { CSSProperties } from "react";
 
 export const tokens = {
-  screen: { width: 402, height: 874, radius: 55 },
-  frame: { inset: 12, radius: 65 },
+  screen: { width: 402, height: 874, radius: 64 },
+  frame: { inset: 12, radius: 76 },
   font: {
     family: '"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     body: { size: 17, lineHeight: 22, weight: 400 },
     caption: { size: 11, weight: 400 },
-    title: { size: 12, weight: 600 },
+    title: { size: 17, weight: 600 },
     status: { size: 17, weight: 600 },
   },
   bubble: { radius: 18, paddingX: 12, paddingY: 7, maxWidthRatio: .72, gapSameSender: 2, gapDifferentSender: 8 },

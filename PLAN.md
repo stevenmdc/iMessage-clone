@@ -263,7 +263,7 @@ Exigences : pause/reprise propre (annulation des timers), reset total, facteur d
 
 ### Ajouts réalisés au MVP
 
-- [x] Bouton Settings Lucide en haut à droite, coins `rounded-xl`
+- [x] Bouton Settings Lucide fixé à droite, au-dessus du slider vertical de zoom (50–150 %), coins `rounded-xl`
 - [x] Modale personnalisée centrée, fond flouté et animations d’ouverture/fermeture
 - [x] Gestion du focus, fermeture par Échap / clic extérieur / croix et blocage de l’arrière-plan
 - [x] Réglages en direct : son, vitesse, nom du contact, heure, Wi-Fi et batterie — conservés pendant la session
@@ -277,8 +277,8 @@ Exigences : pause/reprise propre (annulation des timers), reset total, facteur d
 - [x] Delivered / Read sous le dernier message envoyé — libellés français « Distribué » / « Lu », pilotés par le scénario
 - [ ] Mode sombre
 - [x] Clavier iOS animé + saisie dans l'`InputBar` — rendu HTML/CSS personnalisé, QWERTY par défaut comme la référence, AZERTY sélectionnable ; touches/ping et prévisualisation des lettres, accents et emoji, clavier numérique pour ponctuation ; saisie synchronisée avec pause, reset et vitesse. Proportions et styles repris depuis la capture ; validation visuelle finale à faire.
-- [x] Éditeur de scénario JSON avec validation, aperçu manuel et aperçu live après 650 ms sans modification
-- [x] Plusieurs scénarios sélectionnables — trois exemples recommandés et jusqu’à dix scénarios personnels enregistrés dans le navigateur
+- [x] Éditeur de scénario JSON dans la modale des paramètres, section dédiée — validation, aperçu manuel (fermeture de la modale), aperçu live après 650 ms sans modification et brouillon conservé pendant la session
+- [x] Plusieurs scénarios sélectionnables dans le menu de démarrage de l’iPhone — trois exemples recommandés et jusqu’à dix scénarios personnels enregistrés dans le navigateur ; bouton de démarrage conservé sous la liste défilante
 
 ### Phase 3
 
