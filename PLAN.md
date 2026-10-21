@@ -184,7 +184,7 @@ imessage-sim/
 | `type` | `timestamp` · `message` · `tapback` · `status` (V2+ : `call`, `vibrate`, `battery`) |
 | `from` | `me` (bulle bleue, droite) ou `them` (bulle grise, gauche) |
 | `delay` | Pause avant l'événement (ms), multipliée par le facteur de vitesse |
-| `typing` | Durée de l'indicateur de frappe avant l'arrivée (messages `them` uniquement) |
+| `typing` | Durée de frappe en ms : indicateur pour `them`, saisie progressive et touches animées pour `me`. Pour `me`, durée automatique si absent ; `0` désactive la saisie simulée. |
 | `target` | Index de l'événement `message` visé (0-based, comptant uniquement les messages) |
 | `kind` | `heart` · `thumbsUp` · `thumbsDown` · `haha` · `exclamation` · `question` |
 
@@ -213,7 +213,7 @@ Séquence pour un message `them` :
 
 Séquence pour un message `me` :
 1. `await delay`
-2. Option V2 : texte tapé dans l'`InputBar`, puis envoi
+2. Texte tapé progressivement dans l'`InputBar` avec clavier AZERTY et effet ping sur chaque touche ; `typing` règle la durée, puis pause de 220 ms avant envoi
 3. Bulle ajoutée + son **send**
 
 Exigences : pause/reprise propre (annulation des timers), reset total, facteur de vitesse (0.5× / 1× / 2×).
@@ -245,34 +245,48 @@ Exigences : pause/reprise propre (annulation des timers), reset total, facteur d
 
 ### Phase 1 — MVP
 
-- [ ] Init projet Next.js + Tailwind + Framer Motion, configuration TypeScript
-- [ ] `tokens.ts` + chargement de SF Pro (`@font-face` local) avec repli
-- [ ] `iPhoneFrame` + `StatusBar` (5G, Wi-Fi, batterie %) + Dynamic Island + `HomeIndicator`
-- [ ] `ConversationHeader`, `MessageList`, `MessageBubble` (queues, séries, couleurs)
-- [ ] `TapbackBadge` aux bonnes positions
-- [ ] Moteur : `useScenario` + lecture du JSON
-- [ ] `TypingIndicator`
-- [ ] Sons Web Audio + écran "Touch pour démarrer"
-- [ ] Contrôles : play / pause / reset / vitesse
-- [ ] Scale responsive du téléphone
+- [x] Init projet Next.js + Tailwind + Framer Motion, configuration TypeScript
+- [ ] `tokens.ts` + chargement de SF Pro (`@font-face` local) avec repli — tokens complétés et reliés au rendu via variables CSS (dimensions, typographie, bulles, réactions) ; chargement local configuré, fichier SF Pro encore absent
+- [x] `iPhoneFrame` + `StatusBar` (5G, Wi-Fi, batterie %) + Dynamic Island + `HomeIndicator`
+- [x] `ConversationHeader`, `MessageList`, `MessageBubble` (queues, séries, couleurs) — queues sur le dernier message de chaque série, espacement de 2 pt dans une série et 8 pt entre expéditeurs ; fidélité à calibrer
+- [x] `TapbackBadge` aux bonnes positions — positions définies en CSS ; comparaison visuelle de référence à faire
+- [x] Moteur : `useScenario` + lecture du JSON
+- [x] `TypingIndicator`
+- [x] Sons Web Audio + écran "Touch pour démarrer" — envoi, réception et réactions envoyées/reçues disponibles en local, hors Git
+- [x] Contrôles : play / pause / reset / vitesse
+- [x] Scale responsive du téléphone
 - [ ] **Calibrage pixel** : superposition avec une capture de référence iPhone 17
+
+**État au 21 octobre 2026 : 9 étapes sur 11 implémentées.** Les coches indiquent la présence de l’implémentation, pas une validation pixel-fidèle. Les images de `public/images/` ont été consultées comme références ; aucune superposition de calibration n’a encore été réalisée.
+
+**Vérifications effectuées** : `npm run lint` et `npm run build` passent. Vérifications ciblées de la timeline (délais, frappe entrante, cibles), du chargement/cache audio avec contexte simulé et de la disponibilité HTTP des sons réalisées. Validation visuelle complète dans un navigateur et fidélité des sons à iOS 26 encore à confirmer.
+
+### Ajouts réalisés au MVP
+
+- [x] Bouton Settings Lucide en haut à droite, coins `rounded-xl`
+- [x] Modale personnalisée centrée, fond flouté et animations d’ouverture/fermeture
+- [x] Gestion du focus, fermeture par Échap / clic extérieur / croix et blocage de l’arrière-plan
+- [x] Réglages en direct : son, vitesse, nom du contact, heure, Wi-Fi et batterie — conservés pendant la session
+- [x] Boutons d’écoute des quatre sons dans les paramètres
+- [x] Documentation des assets locaux et de leur provenance dans `README.md`
+- [x] Réactions multiples disposées côte à côte, sans superposition
+- [x] Animations des bulles et réactions adaptées à la préférence de réduction des mouvements
 
 ### Phase 2
 
-- [ ] Delivered / Read sous le dernier message envoyé
+- [x] Delivered / Read sous le dernier message envoyé — libellés français « Distribué » / « Lu », pilotés par le scénario
 - [ ] Mode sombre
-- [ ] Clavier iOS animé + saisie dans l'`InputBar`
-- [ ] Éditeur de scénario (JSON live, éventuellement formulaire)
-- [ ] Plusieurs scénarios sélectionnables
-- [ ] Export vidéo (Playwright + ffmpeg, ou MediaRecorder)
+- [x] Clavier iOS animé + saisie dans l'`InputBar` — rendu HTML/CSS personnalisé, QWERTY par défaut comme la référence, AZERTY sélectionnable ; touches/ping et prévisualisation des lettres, accents et emoji, clavier numérique pour ponctuation ; saisie synchronisée avec pause, reset et vitesse. Proportions et styles repris depuis la capture ; validation visuelle finale à faire.
+- [x] Éditeur de scénario JSON avec validation, aperçu manuel et aperçu live après 650 ms sans modification
+- [x] Plusieurs scénarios sélectionnables — trois exemples recommandés et jusqu’à dix scénarios personnels enregistrés dans le navigateur
 
 ### Phase 3
 
 - [ ] Flip / tilt 3D au drag, face arrière du téléphone
 - [ ] Vibration simulée (shake) liée aux événements
 - [ ] Appel entrant (écran d'appel, sonnerie)
-- [ ] Impact tactile (ripple au touch/clic sur l'écran)
-- [ ] Fonds Apple (wallpapers) autour du téléphone
+- [ ] Impact tactile (ripple au touch/clic sur l'écran) — effet ping déjà présent sur les touches lors de la saisie du scénario ; interaction libre avec tout l’écran à faire
+- [ ] Export vidéo (Playwright + ffmpeg, ou MediaRecorder)
 
 ---
 

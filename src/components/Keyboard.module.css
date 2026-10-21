@@ -1,0 +1,12 @@
+.ping {
+  animation: key-impact 460ms ease-out forwards;
+}
+
+@keyframes key-impact {
+  from { transform: scale(.35); opacity: .85; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ping { animation: none; }
+}

@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "title": "On se retrouve jeudi ?", "theme": "light",
+    "contact": { "name": "Instinct", "avatar": null },
+    "statusBar": { "time": "9:41", "network": "5G", "wifi": true, "battery": 87, "charging": false }
+  },
+  "events": [
+    { "type": "timestamp", "label": "Aujourd’hui 09:41" },
+    { "type": "message", "from": "them", "text": "The Firm : jeudi et vendredi, tout est en liste d’attente.", "delay": 600, "typing": 1500 },
+    { "type": "message", "from": "me", "text": "Donc jeudi pas confirmé ?", "delay": 1400, "typing": 2300 },
+    { "type": "status", "target": 1, "value": "delivered", "delay": 400 },
+    { "type": "message", "from": "them", "text": "Non, jeudi n’est pas réservé.", "delay": 800, "typing": 1700 },
+    { "type": "message", "from": "them", "text": "Mais je connais une autre adresse 👀", "delay": 400, "typing": 1200 },
+    { "type": "message", "from": "me", "text": "Je te fais confiance. On part là-dessus !", "delay": 1500, "typing": 3300 },
+    { "type": "status", "target": 4, "value": "delivered", "delay": 400 },
+    { "type": "tapback", "target": 4, "from": "them", "kind": "heart", "delay": 1100 },
+    { "type": "status", "target": 4, "value": "read", "delay": 700 },
+    { "type": "message", "from": "them", "text": "Parfait, jeudi à 20h ✨", "delay": 500, "typing": 1300 }
+  ]
+}

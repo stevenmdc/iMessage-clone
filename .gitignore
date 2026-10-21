@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Assets Apple (usage privé)
+/public/fonts/*
+/public/sounds/*
+!/public/fonts/.gitkeep
+!/public/sounds/.gitkeep

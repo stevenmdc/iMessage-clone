@@ -1,0 +1,4 @@
+import type { useScenario } from "@/engine/useScenario";
+export default function Controls({ player, onPlay, muted, onMute }: { player: ReturnType<typeof useScenario>; onPlay: () => void; muted: boolean; onMute: () => void }) {
+  return <div className="controls"><button className="transport" onClick={player.reset} aria-label="Réinitialiser">↺</button><button className="play-button" onClick={player.playing ? player.pause : onPlay}>{player.playing ? "Ⅱ Pause" : player.elapsed >= player.duration ? "↻ Rejouer" : "▶ Lecture"}</button><div className="control-divider"/><select aria-label="Vitesse de lecture" value={player.speed} onChange={e => player.setSpeed(Number(e.target.value))}><option value={.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option></select><button className="transport sound" onClick={onMute} aria-label={muted ? "Activer le son" : "Couper le son"} aria-pressed={muted}>{muted ? "Son off" : "Son on"}</button></div>;
+}
