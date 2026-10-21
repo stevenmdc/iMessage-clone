@@ -20,6 +20,7 @@ import { presets } from "@/lib/scenarios";
 import ScenarioPicker from "./ScenarioPicker";
 import ScenarioEditor from "./ScenarioEditor";
 import { useScenarioLibrary } from "@/lib/useScenarioLibrary";
+import { useContactAvatars } from "@/lib/useContactAvatars";
 import ZoomControl from "./ZoomControl";
 export default function Stage() {
   const [scenario, setScenario] = useState<Scenario>(presets[0].scenario);
@@ -36,6 +37,8 @@ export default function Stage() {
   const phoneViewportRef = useRef<HTMLDivElement>(null);
   const scale = fitScale * zoom / 100;
   const player = useScenario(scenario, muted);
+  const avatars = useContactAvatars();
+  const avatar = avatars.get(meta.contact);
   useEffect(() => {
     const resize = () =>
       setFitScale(
@@ -103,7 +106,7 @@ export default function Stage() {
                 >
                   <IPhoneFrame>
                     <StatusBar status={meta.statusBar} />
-                    <ConversationHeader name={meta.contact.name} onBack={player.reset} />
+                    <ConversationHeader name={meta.contact.name} avatar={avatar} onBack={player.reset} />
                     <MessageList key={revision} player={player} />
                     <InputBar
                       draft={player.draft}
@@ -127,20 +130,13 @@ export default function Stage() {
                     {!player.started && (
                       <div className="absolute inset-x-0 top-[calc(64px+var(--conversation-header-height))] bottom-20 z-[3] flex flex-col bg-white px-6 pt-4 pb-5">
                         <div className="shrink-0 text-center">
-                          <span className="text-[9px] tracking-[1.6px] text-[#a19aa9]">À VOUS DE JOUER</span>
-                          <h1 className="mt-3 text-[26px] leading-[1.15] font-semibold tracking-[-1px] text-[#25252b]">
-                            Chaque message
-                            <br />
-                            raconte une histoire.
+                          <h1 className="text-[26px] leading-[1.15] font-semibold tracking-[-1px] text-[#25252b]">
+                            Conversations
                           </h1>
-                          <p className="mt-2 text-[12px] leading-[18px] text-[#96969e]">Choisissez un point de départ.</p>
                         </div>
-                        <ScenarioPicker library={library} scenario={scenario} />
+                        <ScenarioPicker library={library} scenario={scenario} getAvatar={avatars.get} />
                         <div className="mt-4 shrink-0 text-center">
-                          <button type="button" onClick={play} className="flex w-full items-center justify-center gap-2 rounded-full border-0 bg-[#0a84ff] px-5 py-4 text-[14px] font-medium text-white">
-                            <Play size={16} fill="currentColor" aria-hidden="true" /> Appuyer pour démarrer
-                          </button>
-                          <span className="mt-3 block text-[11px] text-[#a4a4ac]">
+                          <span className="mb-3 block text-[11px] text-[#a4a4ac]">
                             {meta.contact.name} ·{" "}
                             {
                               scenario.events.filter((e) => e.type === "message")
@@ -148,6 +144,9 @@ export default function Stage() {
                             }{" "}
                             messages
                           </span>
+                          <button type="button" onClick={play} className="flex w-full items-center justify-center gap-2 rounded-full border-0 bg-[#0a84ff] px-5 py-4 text-[14px] font-medium text-white">
+                            <Play size={16} fill="currentColor" aria-hidden="true" /> Démarrer
+                          </button>
                         </div>
                       </div>
                     )}
@@ -198,6 +197,8 @@ export default function Stage() {
             onSpeedChange={player.setSpeed}
             meta={meta}
             onMetaChange={setMeta}
+            avatar={avatar}
+            onAvatarChange={next => avatars.set(meta.contact.name, next)}
             keyboardLayout={keyboardLayout}
             onKeyboardLayoutChange={setKeyboardLayout}
             scenarioEditor={<ScenarioEditor library={library} onPreview={() => setSettingsOpen(false)} />}

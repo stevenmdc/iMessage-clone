@@ -50,7 +50,7 @@ export function useScenario(scenario: Scenario, muted: boolean) {
       case "message":
         typing = false;
         if (event.from === "me") { draft = ""; keyPress = { key: "send", at, id: `send-${messages.length}` }; }
-        messages.push({ id: messages.length, from: event.from, text: event.text });
+        messages.push({ id: messages.length, from: event.from, text: event.text, image: event.image });
         break;
       case "tapback": (tapbacks[event.target] ??= []).push(event); break;
       case "status": statuses[event.target] = event.value; break;

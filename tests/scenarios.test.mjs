@@ -44,12 +44,27 @@ test("target indexes count messages, not timestamps", () => {
   assert.throws(() => parseScenario(JSON.stringify({ ...demo, events })), /target/);
 });
 
+test("fictional times and battery levels above 100 survive JSON validation", () => {
+  for (const [time, battery] of [["9:81", 120], ["24:99", 200], ["99:99", 250]]) {
+    const scenario = structuredClone(demo);
+    scenario.meta.statusBar.time = time;
+    scenario.meta.statusBar.battery = battery;
+    assert.deepEqual(parseScenario(JSON.stringify(scenario)), scenario);
+  }
+});
+
 test("malformed metadata and excessive durations are rejected", () => {
   const invalid = structuredClone(demo);
-  invalid.meta.statusBar.battery = 120;
+  invalid.meta.statusBar.battery = -1;
+  assert.throws(() => parseScenario(JSON.stringify(invalid)), /statusBar/);
+  invalid.meta.statusBar.battery = "120";
+  assert.throws(() => parseScenario(JSON.stringify(invalid)), /statusBar/);
+  invalid.meta.statusBar.battery = null;
   assert.throws(() => parseScenario(JSON.stringify(invalid)), /statusBar/);
   invalid.meta.statusBar.battery = 50;
-  invalid.meta.statusBar.time = "24:99";
+  invalid.meta.statusBar.time = "";
+  assert.throws(() => parseScenario(JSON.stringify(invalid)), /statusBar/);
+  invalid.meta.statusBar.time = 981;
   assert.throws(() => parseScenario(JSON.stringify(invalid)), /statusBar/);
   const events = Array.from({ length: 11 }, () => ({ type: "message", from: "them", text: "Long", delay: 60000 }));
   assert.throws(() => parseScenario(JSON.stringify({ ...demo, events })), /10 minutes/);

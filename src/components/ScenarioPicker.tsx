@@ -2,10 +2,12 @@ import { Check, Trash2 } from "lucide-react";
 import { presets } from "@/lib/scenarios";
 import type { ScenarioLibrary } from "@/lib/useScenarioLibrary";
 import type { Scenario } from "@/engine/types";
+import ContactAvatar from "./ContactAvatar";
 
-export default function ScenarioPicker({ library, scenario }: {
+export default function ScenarioPicker({ library, scenario, getAvatar }: {
   library: ScenarioLibrary;
   scenario: Scenario;
+  getAvatar: (contact: Scenario["meta"]["contact"]) => string | null;
 }) {
   const hasCustom = !presets.some(item => item.id === library.selected)
     && !library.saved.some(item => item.id === library.selected);
@@ -26,7 +28,8 @@ export default function ScenarioPicker({ library, scenario }: {
               onClick={() => library.select(item.id, item.scenario)}
               className={`flex min-w-0 flex-1 items-center justify-between gap-3 rounded-2xl border p-3 text-left ${library.selected === item.id ? "border-[#0a84ff] bg-[#eff6ff]" : "border-[#e9e9ed] bg-[#f8f8fa] hover:bg-[#f1f1f5]"}`}
             >
-              <span className="min-w-0">
+              <ContactAvatar name={item.scenario.meta.contact.name} src={getAvatar(item.scenario.meta.contact)} size={36} />
+              <span className="min-w-0 flex-1">
                 <strong className="block text-[14px] leading-[18px] font-semibold text-[#25252b]">{item.scenario.meta.title}</strong>
                 <span className="mt-1 block text-[11px] leading-[15px] text-[#85858d]">{item.description}</span>
               </span>

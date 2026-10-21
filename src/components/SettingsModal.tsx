@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Braces, Settings, SlidersHorizontal, Volume2, X } from "lucide-react";
 import { previewSound, type Sound } from "@/audio/sounds";
 import type { Scenario } from "@/engine/types";
+import AvatarUpload from "./AvatarUpload";
 
 type Meta = Scenario["meta"];
 interface Props {
@@ -16,6 +17,8 @@ interface Props {
   onSpeedChange: (speed: number) => void;
   meta: Meta;
   onMetaChange: (meta: Meta) => void;
+  avatar: string | null;
+  onAvatarChange: (avatar: string | null) => void;
   keyboardLayout: "qwerty" | "azerty";
   onKeyboardLayoutChange: (layout: "qwerty" | "azerty") => void;
   scenarioEditor: ReactNode;
@@ -28,7 +31,7 @@ function SettingRow({ id, title, description, children }: { id: string; title: s
   </div>;
 }
 
-export default function SettingsModal({ onClose, muted, onSoundChange, speed, onSpeedChange, meta, onMetaChange, keyboardLayout, onKeyboardLayoutChange, scenarioEditor }: Props) {
+export default function SettingsModal({ onClose, muted, onSoundChange, speed, onSpeedChange, meta, onMetaChange, avatar, onAvatarChange, keyboardLayout, onKeyboardLayoutChange, scenarioEditor }: Props) {
   const dialog = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -128,17 +131,26 @@ export default function SettingsModal({ onClose, muted, onSoundChange, speed, on
             <SettingRow id="setting-contact" title="Nom du contact" description="Le nom affiché en haut de la conversation.">
               <input id="setting-contact" type="text" maxLength={30} value={meta.contact.name} onChange={e => onMetaChange({ ...meta, contact: { ...meta.contact, name: e.target.value } })} aria-describedby="setting-contact-description"/>
             </SettingRow>
+            <SettingRow id="setting-avatar" title="Photo de profil" description="Importez une photo pour ce contact. Elle reste enregistrée dans ce navigateur.">
+              <AvatarUpload key={meta.contact.name} name={meta.contact.name} avatar={avatar} onChange={onAvatarChange} />
+            </SettingRow>
             <SettingRow id="setting-keyboard" title="Disposition du clavier" description="QWERTY comme la capture de référence, ou AZERTY pour une conversation en français.">
               <select id="setting-keyboard" value={keyboardLayout} onChange={e => onKeyboardLayoutChange(e.target.value as "qwerty" | "azerty")} aria-describedby="setting-keyboard-description"><option value="qwerty">QWERTY</option><option value="azerty">AZERTY</option></select>
             </SettingRow>
-            <SettingRow id="setting-time" title="Heure du téléphone" description="L’heure affichée dans la barre de statut.">
-              <input id="setting-time" type="time" value={meta.statusBar.time.padStart(5, "0")} onChange={e => { if (e.target.value) updateStatus({ time: e.target.value.replace(/^0/, "") }); }} aria-describedby="setting-time-description"/>
+            <SettingRow id="setting-time" title="Heure du téléphone" description="Affichage libre, y compris une heure fictive comme 9:81.">
+              <input id="setting-time" type="text" spellCheck={false} placeholder="9:81" value={meta.statusBar.time} onChange={e => updateStatus({ time: e.target.value })} aria-describedby="setting-time-description"/>
             </SettingRow>
             <SettingRow id="setting-wifi" title="Connexion Wi-Fi" description="Afficher le Wi-Fi à côté du signal réseau.">
               <input id="setting-wifi" className="setting-switch" type="checkbox" role="switch" checked={meta.statusBar.wifi} onChange={e => updateStatus({ wifi: e.target.checked })} aria-describedby="setting-wifi-description"/>
             </SettingRow>
-            <SettingRow id="setting-battery" title="Niveau de batterie" description="Régler le pourcentage de batterie du téléphone.">
-              <div className="setting-range"><input id="setting-battery" type="range" min={0} max={100} value={meta.statusBar.battery} onChange={e => updateStatus({ battery: Number(e.target.value) })} aria-describedby="setting-battery-description"/><output htmlFor="setting-battery">{meta.statusBar.battery}%</output></div>
+            <SettingRow id="setting-battery" title="Niveau de batterie" description="Au-delà de 100 %, le remplissage devient vert et dépasse proportionnellement.">
+              <div className="flex flex-col items-end gap-2">
+                <input id="setting-battery" type="range" min={0} max={Math.max(200, meta.statusBar.battery)} value={meta.statusBar.battery} onChange={e => updateStatus({ battery: Number(e.target.value) })} aria-describedby="setting-battery-description" className="h-1 w-[132px] cursor-pointer accent-[#82718f]" />
+                <div className="flex items-center gap-2 text-[11px] text-[#968b9f]">
+                  <input id="setting-battery-value" type="number" min={0} step={1} value={meta.statusBar.battery} onChange={e => { const battery = e.currentTarget.valueAsNumber; if (Number.isFinite(battery) && battery >= 0) updateStatus({ battery }); }} aria-label="Pourcentage de batterie" aria-describedby="setting-battery-description" />
+                  <span aria-hidden="true">%</span>
+                </div>
+              </div>
             </SettingRow>
           </div>
         </div>

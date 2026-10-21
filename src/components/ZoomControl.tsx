@@ -1,7 +1,7 @@
 import { Minus, Plus, Settings } from "lucide-react";
 
 const MIN_ZOOM = 50;
-const MAX_ZOOM = 150;
+const MAX_ZOOM = 200;
 const ZOOM_STEP = 5;
 const buttonClassName = "grid size-8 place-items-center border-0 bg-transparent p-0 text-inherit enabled:hover:text-[#39313f] disabled:cursor-default disabled:opacity-30";
 

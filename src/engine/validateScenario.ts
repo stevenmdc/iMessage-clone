@@ -11,7 +11,7 @@ export function parseScenario(source: string): Scenario {
   if (meta.theme !== "light") throw new Error('meta.theme : seul le thème "light" est disponible.');
   if (!record(meta.contact) || typeof meta.contact.name !== "string" || !meta.contact.name.trim() || meta.contact.name.length > 30 || !(meta.contact.avatar === null || typeof meta.contact.avatar === "string")) throw new Error("meta.contact : nom requis (30 caractères maximum) et avatar null ou texte.");
   const status = meta.statusBar;
-  if (!record(status) || typeof status.time !== "string" || !/^([01]?\d|2[0-3]):[0-5]\d$/.test(status.time) || typeof status.network !== "string" || typeof status.wifi !== "boolean" || typeof status.charging !== "boolean" || typeof status.battery !== "number" || !Number.isFinite(status.battery) || status.battery < 0 || status.battery > 100) throw new Error("meta.statusBar : heure HH:MM, réseau, Wi-Fi, batterie entre 0 et 100 et charging requis.");
+  if (!record(status) || typeof status.time !== "string" || !status.time.trim() || typeof status.network !== "string" || typeof status.wifi !== "boolean" || typeof status.charging !== "boolean" || typeof status.battery !== "number" || !Number.isFinite(status.battery) || status.battery < 0) throw new Error("meta.statusBar : heure libre non vide, réseau, Wi-Fi, batterie positive ou nulle et charging requis.");
   if (!Array.isArray(events) || events.length === 0 || events.length > 200) throw new Error("events : ajoutez entre 1 et 200 événements.");
   let messages = 0;
   let duration = 0;
@@ -23,7 +23,14 @@ export function parseScenario(source: string): Scenario {
     switch (event.type) {
       case "timestamp": if (typeof event.label !== "string" || event.label.length > 100) fail("label attendu (100 caractères maximum)."); break;
       case "message":
-        if (!["me", "them"].includes(String(event.from)) || typeof event.text !== "string" || !event.text.trim() || event.text.length > 1000) fail("from doit être me/them et text non vide (1000 caractères maximum).");
+        if (event.image !== undefined) {
+          const image = event.image;
+          if (!record(image) || typeof image.id !== "string" || !/^[A-Za-z0-9_-]{1,80}$/.test(image.id)
+            || !Number.isInteger(image.width) || Number(image.width) < 1 || Number(image.width) > 4096
+            || !Number.isInteger(image.height) || Number(image.height) < 1 || Number(image.height) > 4096
+            || image.alt !== undefined && (typeof image.alt !== "string" || image.alt.length > 200)) fail("image : identifiant local, dimensions valides et description facultative (200 caractères maximum) attendus.");
+        }
+        if (!["me", "them"].includes(String(event.from)) || typeof event.text !== "string" || event.text.length > 1000 || !event.text.trim() && !event.image) fail("from doit être me/them ; text doit contenir un texte (1000 caractères maximum) ou être accompagné d’une image.");
         messages++; break;
       case "tapback":
       case "status":

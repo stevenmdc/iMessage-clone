@@ -15,6 +15,10 @@ Ouvrir http://localhost:3000 puis cliquer sur « Toucher pour démarrer ». Cont
 
 Modifier `scenarios/demo.json`. Les délais et durées de frappe sont en millisecondes ; 2× accélère la lecture. Les cibles des réactions et statuts comptent uniquement les messages, à partir de zéro. La barre de statut et le nom du contact viennent de `meta`.
 
+Dans **Paramètres → Général → Photo de profil**, importer, remplacer ou retirer la photo du contact. Chaque photo est recadrée au centre, réduite à 256 × 256 et enregistrée localement par nom de contact. Elle reste disponible après rechargement et dans les autres conversations avec le même contact. Les photos importées restent dans ce navigateur ; effacer les données du site les supprime.
+
+Dans **Paramètres → Éditeur JSON → Images de la conversation**, ajouter une image envoyée ou reçue, avec une légende facultative. Elle est ajoutée à la fin du scénario ; déplacer son événement JSON pour changer son emplacement. Les photos gardent leurs proportions et sont réduites à 1280 px maximum. Elles restent uniquement en mémoire pendant que l’app est ouverte et disparaissent au rechargement ou à la fermeture de l’onglet. Les scénarios enregistrés conservent les emplacements des images ; le bouton de réimport permet de rétablir une image à la session suivante.
+
 ## Assets privés facultatifs
 
 - Police : déposer `SF-Pro-Text.woff2` dans `public/fonts/`. Repli sur la police système si absente.

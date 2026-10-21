@@ -222,8 +222,8 @@ Exigences : pause/reprise propre (annulation des timers), reset total, facteur d
 
 ## 7. Animations (Framer Motion)
 
-- **Apparition d'une bulle** : `initial={{ opacity: 0, scale: 0.6, y: 12 }}` → spring (stiffness ~500, damping ~30), `transformOrigin` selon le côté de la queue.
-- **Réorganisation de la liste** : prop `layout` pour que les messages remontent fluidement.
+- **Apparition d'une bulle** : fondu et glissement de 8 pt en 200 ms, sans zoom ni ressort ; animation portée par la bulle elle-même pour éviter de déformer le texte.
+- **Réorganisation de la liste** : `layout="position"` sur les lignes et `layoutScroll` sur la liste ; les déplacements sont séparés de l’apparition, sans animation de taille. Animations et défilement fluide désactivés si la réduction des mouvements est demandée.
 - **Indicateur de frappe** : trois points en boucle avec opacité décalée.
 - **Tapback** : pop spring en scale, léger rebond.
 - **Shake (V3, vibration)** : `animate={{ x: [0, -4, 4, -3, 3, 0] }}` sur le conteneur du téléphone.
@@ -267,6 +267,8 @@ Exigences : pause/reprise propre (annulation des timers), reset total, facteur d
 - [x] Modale personnalisée centrée, fond flouté et animations d’ouverture/fermeture
 - [x] Gestion du focus, fermeture par Échap / clic extérieur / croix et blocage de l’arrière-plan
 - [x] Réglages en direct : son, vitesse, nom du contact, heure, Wi-Fi et batterie — conservés pendant la session
+- [x] Heure libre (ex. `9:81`) et batterie sans plafond à 100 % dans les réglages et le JSON ; remplissage vert et proportionnel au-delà de 100 %
+- [x] Photos de profil importées dans les réglages, recadrées au centre en 256 × 256 et conservées par nom de contact dans le navigateur ; aperçu, remplacement, suppression et affichage dans l’en-tête et le choix des conversations
 - [x] Boutons d’écoute des quatre sons dans les paramètres
 - [x] Documentation des assets locaux et de leur provenance dans `README.md`
 - [x] Réactions multiples disposées côte à côte, sans superposition
@@ -279,6 +281,7 @@ Exigences : pause/reprise propre (annulation des timers), reset total, facteur d
 - [x] Clavier iOS animé + saisie dans l'`InputBar` — rendu HTML/CSS personnalisé, QWERTY par défaut comme la référence, AZERTY sélectionnable ; touches/ping et prévisualisation des lettres, accents et emoji, clavier numérique pour ponctuation ; saisie synchronisée avec pause, reset et vitesse. Proportions et styles repris depuis la capture ; validation visuelle finale à faire.
 - [x] Éditeur de scénario JSON dans la modale des paramètres, section dédiée — validation, aperçu manuel (fermeture de la modale), aperçu live après 650 ms sans modification et brouillon conservé pendant la session
 - [x] Plusieurs scénarios sélectionnables dans le menu de démarrage de l’iPhone — trois exemples recommandés et jusqu’à dix scénarios personnels enregistrés dans le navigateur ; bouton de démarrage conservé sous la liste défilante
+- [x] Images envoyées/reçues dans les messages : import et réimport depuis l’éditeur, légende facultative, conservation des proportions, réactions et statuts compatibles. Fichiers uniquement en mémoire jusqu’au rechargement ou à la fermeture ; seul leur emplacement est conservé dans les scénarios enregistrés.
 
 ### Phase 3
 

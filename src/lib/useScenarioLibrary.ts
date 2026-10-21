@@ -3,7 +3,8 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { presets } from "./scenarios";
 import { parseScenario } from "@/engine/validateScenario";
-import type { Scenario } from "@/engine/types";
+import type { MessageImage, Scenario, Sender } from "@/engine/types";
+import { addScenarioImage, removeScenarioImage } from "./scenarioImages";
 
 interface Saved { id: string; scenario: Scenario }
 const storageKey = "imessage-studio.scenarios.v1";
@@ -103,7 +104,24 @@ export function useScenarioLibrary(onApply: (scenario: Scenario, play: boolean) 
     setNotice("");
   }
 
-  return { selected, source, saved, live, setLive, notice, lastApplied, parsed, error, select, preview, save, remove, edit };
+  function addImage(image: MessageImage, from: Sender, caption: string, eventIndex?: number) {
+    if (!parsed) return false;
+    try {
+      edit(JSON.stringify(addScenarioImage(parsed, image, from, caption, eventIndex), null, 2));
+      return true;
+    } catch (cause) {
+      setNotice(cause instanceof Error ? cause.message : "Ajout de l’image impossible.");
+      return false;
+    }
+  }
+
+  function removeImage(eventIndex: number) {
+    if (!parsed) return;
+    try { edit(JSON.stringify(removeScenarioImage(parsed, eventIndex), null, 2)); }
+    catch (cause) { setNotice(cause instanceof Error ? cause.message : "Suppression de l’image impossible."); }
+  }
+
+  return { selected, source, saved, live, setLive, notice, lastApplied, parsed, error, select, preview, save, remove, edit, addImage, removeImage };
 }
 
 export type ScenarioLibrary = ReturnType<typeof useScenarioLibrary>;

@@ -1,13 +1,14 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ContactAvatar from "./ContactAvatar";
 
-export default function ConversationHeader({ name, onBack }: { name: string; onBack: () => void }) {
+export default function ConversationHeader({ name, avatar, onBack }: { name: string; avatar: string | null; onBack: () => void }) {
   return (
     <header className="conversation-header">
       <button type="button" className="glass-icon p-0 text-inherit" onClick={onBack} aria-label="Retour au choix des scénarios">
         <ChevronLeft size={30} strokeWidth={2} aria-hidden="true" />
       </button>
       <div className="contact">
-        <div className="avatar">{name.slice(0, 1)}</div>
+        <ContactAvatar name={name} src={avatar} className="avatar" />
         <div className="contact-name">
           <span>{name}</span>
           <ChevronRight size={14} strokeWidth={2.5} aria-hidden="true" />
